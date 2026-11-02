@@ -342,3 +342,61 @@ can_gas_fit |>
 
 #We can see that the residuals are not simply random white noise as there is still some predictability left in the data not accounted for by our model. The Ljung-Box test produces a p-value of approximately 0, which is significantly less than 0.05 therefore we can reject the null hypothesis. We can also then conclude that there is still significant autocorrelation in our residuals.
 
+# Part 5.1a
+# Expanding-window time series cross-validation
+gas_cv_fc <- can_gas |>
+  select(Month, Volume) |>
+  stretch_tsibble(.init = 240, .step = 1) |>
+  model(
+    snaive = SNAIVE(Volume),
+    tslm = TSLM(log(Volume) ~ trend() + season())
+  ) |>
+  forecast(h = 1)
+
+# Compare forecasting accuracy
+gas_cv_fc |>
+  accuracy(can_gas, measures = list(MAE = MAE, RMSE = RMSE)) |>
+  knitr::kable(digits = 3)
+
+head(gas_cv_fc)
+tail(gas_cv_fc)
+
+# The forecasts were evaluated from January 1980 to February 2005, and both MAE (0.562 vs. 4.009) and RMSE (0.702 vs. 4.362) show that the seasonal random walk model forecasts more accurately than the linear trend and seasonal dummies model.
+
+# Part 5.2a
+# Calculate forecast errors for both models
+errs <- gas_cv_fc |>
+  as_tibble() |>
+  left_join(
+    as_tibble(can_gas) |>
+      select(Month, actual = Volume),
+    by = "Month"
+  ) |>
+  mutate(e = actual - .mean) |>
+  select(Month, .model, e) |>
+  pivot_wider(names_from = .model, values_from = e) |>
+  na.omit()
+
+# Diebold-Mariano test using absolute loss
+forecast::dm.test(errs$snaive, errs$tslm, h = 1, power = 1)
+
+#DM statistic: -31.278, P-value: < 2.2e-16, The seasonal random walk model is significantly more accurate than the linear trend and seasonal dummies model, so we reject the null hypothesis of equal forecast accuracy.
+
+# Part 5.3a
+# Rolling-window time series cross-validation
+gas_rolling_fc <- can_gas |>
+  select(Month, Volume) |>
+  slide_tsibble(.size = 240, .step = 1) |>
+  model(
+    snaive = SNAIVE(Volume),
+    tslm = TSLM(log(Volume) ~ trend() + season())
+  ) |>
+  forecast(h = 1)
+
+# Compare forecasting accuracy
+gas_rolling_fc |>
+  accuracy(can_gas, measures = list(MAE = MAE, RMSE = RMSE)) |>
+  knitr::kable(digits = 3)
+
+#The linear trend model plus seasonal dummies had the best improvement in accuracy. There was a decrease in MAE from 4.009 to 2.095 and a decrease in RMSE from 4.362 to 2.425. The seasonal random walk model stayed the same. This is because the rolling window means that the linear trend model can adapt better to recent trends in gas production.
+

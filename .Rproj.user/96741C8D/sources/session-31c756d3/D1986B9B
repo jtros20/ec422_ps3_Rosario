@@ -3,7 +3,7 @@
     "path": "~/Rstudio Econ 320/Econ 422/ec422_ps3_Rosario/ps3_script_Rosario.R",
     "project_path": "ps3_script_Rosario.R",
     "type": "r_source",
-    "hash": "2383227006",
+    "hash": "3103317426",
     "contents": "",
     "dirty": false,
     "created": 1793573450131.0,
@@ -13,15 +13,15 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "344,0",
-        "scrollLine": "324"
+        "cursorPosition": "401,0",
+        "scrollLine": "381"
     },
     "folds": "",
-    "lastKnownWriteTime": 1793582650,
+    "lastKnownWriteTime": 1793583115,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1793582650365,
+    "last_content_update": 1793583115764,
     "read_only": false,
     "read_only_alternatives": []
 }
