@@ -117,5 +117,102 @@ can_gas |>
   theme_minimal()
 # Did this to to highlight overall trend making it easier to see long term trend as can_gas spikes a lot
 
+# Part 3
+# Part 3.1
+# Yes the seasonal swings do get larger however it does not hold through the entire sample especially after aroun 1990 when the swings get smaller.
+# Add natural log of Volume
+can_gas <- can_gas %>%
+  mutate(log_volume = log(Volume))
+
+# Plot logged Canadian gas production
+can_gas %>%
+  autoplot(log_volume) +
+  labs(
+    title = "Log of Canadian Gas Production",
+    x = "Year",
+    y = "Log of Volume"
+  ) +
+  theme_minimal()
+
+# I do think logging canadian gas is useful because it stabilizes the seasonal swings in the earlier years
+# part 3.1c
+# Filter for NSA retail sales and add log column
+retail_nsa <- retail_ts %>%
+  filter(series_id == "RSAFSNA") %>%
+  mutate(log_sales = log(sales))
+
+# Plot original retail sales
+retail_nsa %>%
+  autoplot(sales) +
+  labs(
+    title = "NSA Retail Sales",
+    x = "Year",
+    y = "Retail Sales"
+  ) +
+  theme_minimal()
+
+# Plot logged retail sales
+retail_nsa %>%
+  autoplot(log_sales) +
+  labs(
+    title = "Log of NSA Retail Sales",
+    x = "Year",
+    y = "Log of Retail Sales"
+  ) +
+  theme_minimal()
+
+# more useful because it makes teh swings more consistent in size throughout the years, especially because it is consistent over the whole sample
+
+# Part 3.2a
+# Calculate both growth rates
+can_gas <- can_gas |>
+  mutate(
+    growth_direct = 100 * difference(Volume) / lag(Volume),
+    growth_logdiff = 100 * difference(log_volume)
+  )
+
+# Plot direct growth rate
+can_gas |>
+  autoplot(growth_direct) +
+  labs(
+    title = "Canadian Gas Monthly Growth Rate",
+    x = "Year",
+    y = "Growth Rate (%)"
+  ) +
+  theme_minimal()
+
+# Calculate absolute difference between growth rates
+can_gas <- can_gas |>
+  mutate(
+    growth_gap = abs(growth_direct - growth_logdiff)
+  )
+
+# Plot growth gap
+can_gas |>
+  autoplot(growth_gap) +
+  labs(
+    title = "Difference Between Growth Rate Methods",
+    x = "Year",
+    y = "Absolute Difference (Percentage Points)"
+  ) +
+  theme_minimal()
+
+# The log difference approximation is pretty accurate because the difference between the growth rates are smal, becomes less accurate when the growth rates are huge.
+
+# Month over Month log difference
+retail_ts <- retail_ts |>
+  group_by_key() |>
+  mutate(growth_mom = 100 * difference(log(sales))) |>
+  ungroup()
+
+retail_ts |>
+  autoplot(growth_mom) +
+  labs(
+    title = "Month-over-Month Growth: SA vs. NSA Retail Sales",
+    x = NULL, y = "Growth rate (%)", color = NULL
+  ) +
+  theme_minimal()
+
+# The NSA series is much nosier in month-over-month growth rates because it includes the seasonality, especially in december/holidays. SA is much smaller because it has removed these predictable patterns and is more stable.
 
 
