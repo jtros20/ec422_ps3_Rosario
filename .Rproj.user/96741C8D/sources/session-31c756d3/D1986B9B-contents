@@ -400,3 +400,4 @@ gas_rolling_fc |>
 
 #The linear trend model plus seasonal dummies had the best improvement in accuracy. There was a decrease in MAE from 4.009 to 2.095 and a decrease in RMSE from 4.362 to 2.425. The seasonal random walk model stayed the same. This is because the rolling window means that the linear trend model can adapt better to recent trends in gas production.
 
+
